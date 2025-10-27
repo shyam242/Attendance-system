@@ -51,7 +51,7 @@ export default function Home() {
           className="max-w-2xl mb-16"
         >
           <h1 className="text-6xl sm:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">
-            Smart Attendance System
+            Smart Company Process Attendance System
           </h1>
           <p className="mt-4 text-lg text-gray-300">
             Manage and track attendance effortlessly — create your company and start recording attendance in seconds.
