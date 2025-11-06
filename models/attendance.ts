@@ -18,6 +18,16 @@ const AttendanceSchema = new Schema(
       trim: true,
       lowercase: true,
     },
+    rollNumber: {
+      type: String,
+      required: true,
+      trim: true, // ✅ new field
+    },
+    branch: {
+      type: String,
+      required: true,
+      trim: true, // ✅ new field
+    },
     photo: {
       type: String, // base64 or URL (from camera capture)
       required: true,
@@ -33,7 +43,6 @@ const AttendanceSchema = new Schema(
 );
 
 // Prevent model overwrite issues in Next.js hot reload
-const Attendance =
-  models.Attendance || model("Attendance", AttendanceSchema);
+const Attendance = models.Attendance || model("Attendance", AttendanceSchema);
 
 export default Attendance;
