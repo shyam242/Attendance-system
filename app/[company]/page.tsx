@@ -1,8 +1,9 @@
+"use client";
+
 import CompanyClientPage from "./CompanyClientPage";
 
-export default async function Page({ params }: { params: Promise<{ company: string }> }) {
-  const { company } = await params;
-  const decodedCompany = decodeURIComponent(company);
+export default function Page({ params }: { params: { company: string } }) {
+  const decodedCompany = decodeURIComponent(params.company);
 
   return <CompanyClientPage company={decodedCompany} />;
 }
