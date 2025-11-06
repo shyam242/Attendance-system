@@ -7,8 +7,7 @@ export async function GET() {
     const companies = await Company.find().sort({ createdAt: -1 });
     return Response.json(companies);
   } catch (err: any) {
-    console.error("GET /api/companies error:", err);
-    return Response.json({ error: err.message || "Server error" }, { status: 500 });
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -17,14 +16,23 @@ export async function POST(req: Request) {
     await connectDB();
     const body = await req.json();
 
-    if (!body.name) {
-      return Response.json({ error: "Missing company name" }, { status: 400 });
+    const { name, processType, processDate } = body;
+
+    if (!name || !processType || !processDate) {
+      return Response.json(
+        { error: "Name, process type, and process date are required" },
+        { status: 400 }
+      );
     }
 
-    const company = await Company.create({ name: body.name });
+    const company = await Company.create({
+      name,
+      processType,
+      processDate,
+    });
+
     return Response.json(company, { status: 201 });
   } catch (err: any) {
-    console.error("POST /api/companies error:", err);
-    return Response.json({ error: err.message || "Server error" }, { status: 500 });
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
