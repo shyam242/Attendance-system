@@ -1,48 +1,50 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Attendance from "@/models/attendance";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     await connectDB();
     const body = await req.json();
+    const ip = req.headers.get("x-forwarded-for") || "Unknown";
 
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      "unknown";
+    const { name, email, rollNumber, branch, photo, company } = body;
 
-    const { company, name, email, photo } = body;
-    if (!company || !name || !email)
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    // ✅ Validate new fields
+    if (!name || !email || !rollNumber || !branch || !photo || !company) {
+      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+    }
 
-    const record = await Attendance.create({
-      company,
+    const attendance = await Attendance.create({
       name,
       email,
+      rollNumber,
+      branch,
       photo,
+      company,
       ip_address: ip,
-      timestamp: new Date(),
     });
 
-    return NextResponse.json(record, { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json(attendance, { status: 201 });
+  } catch (err: any) {
+    console.error("POST /api/attendance error:", err);
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
   }
 }
 
 export async function GET(req: Request) {
   try {
     await connectDB();
-    const url = new URL(req.url);
-    const company = url.searchParams.get("company");
-    if (!company) return NextResponse.json([]);
+    const { searchParams } = new URL(req.url);
+    const company = searchParams.get("company");
 
-    const list = await Attendance.find({ company }).sort({ timestamp: -1 });
-    return NextResponse.json(list);
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    if (!company)
+      return NextResponse.json({ error: "Missing company name" }, { status: 400 });
+
+    const attendees = await Attendance.find({ company }).sort({ createdAt: -1 });
+    return NextResponse.json(attendees);
+  } catch (err: any) {
+    console.error("GET /api/attendance error:", err);
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
   }
 }
